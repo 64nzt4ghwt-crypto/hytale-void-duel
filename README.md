@@ -1,30 +1,39 @@
-# Void Duel 🌀
+# Void Duel 🗡️
 
-**Hytale New Worlds Modding Contest 2026 — Experiences Category**
+**A platform battle experience for Hytale — 2026 New Worlds Modding Contest Entry**
 
-> *Fight for survival on crumbling platforms above the void. Last player standing wins.*
-
----
-
-## What Is It?
-
-Void Duel is a multiplayer platform battle minigame for Hytale servers.
-
-2–8 players each spawn on their own circular stone island floating high above the void. Every 20 seconds, the **outer ring of every platform crumbles into air**. Players who fall off the edge plunge into the void. Last one standing wins.
-
-Simple concept. Brutal execution. Incredible spectator experience.
+> *Fight for survival on crumbling islands above the void. Last player standing wins.*
 
 ---
 
-## How to Play
+## What Is Void Duel?
 
-1. Join the server and type `/vd join`
-2. Wait for 2+ players, then the countdown begins
-3. Platforms build automatically, players teleport to their islands
-4. Fight, dodge, and survive
-5. Every 20 seconds: **the edge falls**
-6. Platform shrinks ring by ring until it's gone
-7. Last player alive wins
+2–8 players spawn on floating stone platforms above an endless void. Every 20 seconds, the outer ring of each platform crumbles into air. The platforms shrink. The void grows closer. The last player standing wins.
+
+It's a game of aggression, positioning, and desperation — simple to understand, chaotic to play.
+
+---
+
+## Gameplay
+
+1. Players type `/vd join` to enter the lobby
+2. Match auto-starts when 2+ players join (or admin forces start)
+3. Each player spawns on their own floating platform
+4. Every **20 seconds**: the outer ring of all platforms crumbles
+5. Players who fall into the void are eliminated
+6. **Last one standing wins**
+7. Match resets automatically after 15 seconds
+
+### Platform Progression
+
+```
+Round 1: [████████████████] Radius 8
+Round 2: [██████████████  ] Radius 7
+Round 3: [████████████    ] Radius 6
+...
+Round 8: [████            ] Radius 1 — PANIC
+Round 9: Platform gone. All remaining players fall.
+```
 
 ---
 
@@ -33,68 +42,65 @@ Simple concept. Brutal execution. Incredible spectator experience.
 | Command | Description |
 |---------|-------------|
 | `/vd join` | Join the lobby |
-| `/vd leave` | Leave |
-| `/vd status` | Current match state |
+| `/vd leave` | Leave the match |
+| `/vd status` | Current match status |
 | `/vd start` | Force start (admin) |
-| `/vd stop` | Force stop (admin) |
+| `/vd stop` | Reset the match (admin) |
 
 ---
 
 ## Installation
 
-Drop `VoidDuelPlugin-1.0.0.jar` into your server's `mods/` directory and restart.
+1. Drop `VoidDuelPlugin-1.0.0.jar` into your Hytale server's `mods/` directory
+2. Restart the server
+3. Players can immediately join with `/vd join`
 
-No config needed. Works on any world.
+No configuration needed. Works out of the box.
+
+---
+
+## Technical Details
+
+- **Language:** Java 21 (compatible with Hytale JDK 25 runtime)
+- **API:** Hytale Server Plugin API (`com.hypixel.hytale`)
+- **Events:** `PlayerReadyEvent`, `PlayerDisconnectEvent`
+- **Block manipulation:** `BlockAccessor.setBlock()` for platform crumbling
+- **Scheduling:** `ScheduledExecutorService` for game loop (1-second ticks)
+- **Architecture:** Stateless plugin — GameState, GameLoop, ArenaBuilder, Command, Listener
+
+### Key Classes
+
+| Class | Purpose |
+|-------|---------|
+| `VoidDuelPlugin` | Plugin entry point, wires everything together |
+| `GameState` | All mutable match state (phase, players, platform radius) |
+| `GameLoop` | 1-second tick loop — countdown, crumble, death detection, win condition |
+| `ArenaBuilder` | Builds/crumbles floating platforms via `BlockAccessor` |
+| `VoidDuelCommand` | `/vd` command handler |
+| `VoidDuelListener` | Player join/leave event handling |
 
 ---
 
 ## Building From Source
 
 ```bash
-git clone https://github.com/64nzt4ghwt-crypto/hytale-void-duel
-cd hytale-void-duel
-
-# Compile (requires JDK 21+)
-javac --release 21 \
-  -cp "libs/HytaleServer.jar" \
-  -d build/classes \
-  $(find src -name "*.java")
-
-jar cfm VoidDuelPlugin-1.0.0.jar MANIFEST.MF -C build/classes .
-```
-
-Or via Gradle (requires JDK compatible with Gradle 8.13):
-```bash
+# Requires: JDK 21+, Gradle 8+, HytaleServer.jar in libs/
 ./gradlew jar
+# Output: build/libs/VoidDuelPlugin-1.0.0.jar
 ```
 
----
-
-## Game Design Notes
-
-- **Platform radius:** 8 blocks from center
-- **Players:** 2 minimum, 8 maximum
-- **Crumble interval:** 20 seconds
-- **Player spacing:** 30 blocks between platforms
-- **Death:** Fall below Y=40 → eliminated
-- **Win condition:** Last player with `isAlive` status
+> **Note:** `HytaleServer.jar` is not included in this repo (too large, proprietary).
+> Copy it from your Hytale server installation into `libs/` before building.
 
 ---
 
-## Technical Stack
+## Contest Submission
 
-- Java 21 (compiled with `--release 21` for Hytale compatibility)
-- Hytale Plugin API (`JavaPlugin`, ECS event system, `BlockAccessor.setBlock()`)
-- `ScheduledExecutorService` for 1-second game loop ticks
-- No external dependencies beyond the Hytale server JAR
-
----
-
-## License
-
-MIT — use it, fork it, build on it.
+- **Category:** Experiences
+- **Contest:** Hytale New Worlds Modding Contest 2026
+- **CurseForge:** [Coming Soon]
+- **Developer:** HowlStudio
 
 ---
 
-*Built by HowlStudio for the Hytale New Worlds Modding Contest 2026*
-*Contest page: https://hytale.curseforge.com/newworldscontest/*
+*Built with the Hytale Plugin API. All game logic runs server-side.*
