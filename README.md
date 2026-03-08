@@ -1,119 +1,100 @@
-# DiscordBridgePlugin for Hytale
-**Version:** 1.0.0 | **Author:** HowlStudio
+# Void Duel 🌀
 
-Sync your Hytale server with a Discord channel. Chat messages, player joins/leaves, and server status — all posted to Discord automatically.
+**Hytale New Worlds Modding Contest 2026 — Experiences Category**
 
-**First Discord integration mod on hymods.io** — every multiplayer server needs this.
+> *Fight for survival on crumbling platforms above the void. Last player standing wins.*
 
 ---
 
-## Features
+## What Is It?
 
-- **Chat sync** — in-game messages → Discord channel in real time
-- **Join/leave announcements** — player activity posted to Discord
-- **Server status** — start/stop notifications
-- **Dungeon events** — boss kills, dungeon completions (hooks into DungeonPlugin)
-- **Async delivery** — never lags the game thread
-- **Anti-mention protection** — blocks @everyone / @here injection
-- **Fully configurable** — JSON config, no restart needed for URL updates
+Void Duel is a multiplayer platform battle minigame for Hytale servers.
+
+2–8 players each spawn on their own circular stone island floating high above the void. Every 20 seconds, the **outer ring of every platform crumbles into air**. Players who fall off the edge plunge into the void. Last one standing wins.
+
+Simple concept. Brutal execution. Incredible spectator experience.
+
+---
+
+## How to Play
+
+1. Join the server and type `/vd join`
+2. Wait for 2+ players, then the countdown begins
+3. Platforms build automatically, players teleport to their islands
+4. Fight, dodge, and survive
+5. Every 20 seconds: **the edge falls**
+6. Platform shrinks ring by ring until it's gone
+7. Last player alive wins
+
+---
+
+## Commands
+
+| Command | Description |
+|---------|-------------|
+| `/vd join` | Join the lobby |
+| `/vd leave` | Leave |
+| `/vd status` | Current match state |
+| `/vd start` | Force start (admin) |
+| `/vd stop` | Force stop (admin) |
 
 ---
 
 ## Installation
 
-### 1. Build the JAR (requires JDK 21)
+Drop `VoidDuelPlugin-1.0.0.jar` into your server's `mods/` directory and restart.
+
+No config needed. Works on any world.
+
+---
+
+## Building From Source
 
 ```bash
-brew install openjdk@21    # macOS
-./gradlew jar
+git clone https://github.com/64nzt4ghwt-crypto/hytale-void-duel
+cd hytale-void-duel
+
+# Compile (requires JDK 21+)
+javac --release 21 \
+  -cp "libs/HytaleServer.jar" \
+  -d build/classes \
+  $(find src -name "*.java")
+
+jar cfm VoidDuelPlugin-1.0.0.jar MANIFEST.MF -C build/classes .
 ```
 
-Output: `build/libs/DiscordBridgePlugin-1.0.0.jar`
-
-### 2. Install
-
-Copy to your world's mods folder:
-
-```
-~/Library/Application Support/Hytale/UserData/Saves/<Your World>/mods/com.howlstudio_DiscordBridge/
-```
-
-### 3. Get a Discord Webhook URL
-
-1. Open your Discord server settings
-2. Go to Integrations → Webhooks → New Webhook
-3. Set the channel you want Hytale chat to appear in
-4. Copy the webhook URL
-
-### 4. Configure
-
-Edit the auto-generated `bridge-config.json` in the plugin folder:
-
-```json
-{
-  "enabled": true,
-  "webhook_url": "https://discord.com/api/webhooks/YOUR_WEBHOOK_URL",
-  "chat_username": "Hytale",
-  "chat_avatar_url": "",
-  "system_username": "Hytale Server",
-  "system_avatar_url": "",
-  "announce_joins": true,
-  "announce_leaves": true,
-  "announce_server_status": true,
-  "announce_dungeon_events": true,
-  "max_message_length": 500
-}
-```
-
-### 5. Restart Hytale
-
-Chat will now appear in your Discord channel.
-
----
-
-## Configuration Reference
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `enabled` | bool | `true` | Master switch |
-| `webhook_url` | string | `""` | **Required** — Discord webhook URL |
-| `chat_username` | string | `"Hytale"` | Bot name for chat messages |
-| `chat_avatar_url` | string | `""` | Bot avatar URL (optional) |
-| `system_username` | string | `"Hytale Server"` | Bot name for system messages |
-| `system_avatar_url` | string | `""` | System bot avatar (optional) |
-| `announce_joins` | bool | `true` | Post player join messages |
-| `announce_leaves` | bool | `true` | Post player leave messages |
-| `announce_server_status` | bool | `true` | Post server start/stop |
-| `announce_dungeon_events` | bool | `true` | Post dungeon boss kills etc. |
-| `max_message_length` | int | `500` | Truncate long chat messages |
-
----
-
-## Dungeon Integration
-
-If you also have **DungeonPlugin** installed, you can call:
-
-```java
-// From your DungeonPlugin event handler:
-DiscordWebhook webhook = ...; // get via dependency
-webhook.sendDungeonEvent("Party defeated the Frost Colossus in Frozen Cavern! 🎉");
-```
-
----
-
-## Building for Distribution
-
+Or via Gradle (requires JDK compatible with Gradle 8.13):
 ```bash
 ./gradlew jar
-# Output: build/libs/DiscordBridgePlugin-1.0.0.jar
 ```
-
-The JAR includes gson. Copy it to the mods directory with no other dependencies.
 
 ---
 
-## Compile Requirements
+## Game Design Notes
 
-- Java 21+ (`brew install openjdk@21`)
-- Gradle (included via wrapper)
-- `libs/HytaleServer.jar` (included in this repo)
+- **Platform radius:** 8 blocks from center
+- **Players:** 2 minimum, 8 maximum
+- **Crumble interval:** 20 seconds
+- **Player spacing:** 30 blocks between platforms
+- **Death:** Fall below Y=40 → eliminated
+- **Win condition:** Last player with `isAlive` status
+
+---
+
+## Technical Stack
+
+- Java 21 (compiled with `--release 21` for Hytale compatibility)
+- Hytale Plugin API (`JavaPlugin`, ECS event system, `BlockAccessor.setBlock()`)
+- `ScheduledExecutorService` for 1-second game loop ticks
+- No external dependencies beyond the Hytale server JAR
+
+---
+
+## License
+
+MIT — use it, fork it, build on it.
+
+---
+
+*Built by HowlStudio for the Hytale New Worlds Modding Contest 2026*
+*Contest page: https://hytale.curseforge.com/newworldscontest/*
